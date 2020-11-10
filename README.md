@@ -8,7 +8,8 @@ EXPLICAR O TIPO DE PROBLEMA DO TRABALHO PRÁTICO E QUAL A SOLUCAO NS
 Bem-vendo ao README.md, aqui verás todas as instruções para executares e perceberes o projeto.
 
 ### Pré-requesitos 
-!!! ola
+| WARNING: FAZER O README.md |
+| --- |
 
 ### Configurar projeto no VSCOde
 Para configurarem o o Projeto no VSCode, têm de ter instalado a extenção do GitHub instalado no IDE, fazem login e configuram essas coisas

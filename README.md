@@ -22,4 +22,4 @@ Este projeto está acompanhado por um [Relatório](/Relatório), onde são tirad
 ## Autores
 
  - **[Pedro Sobral](https://github.com/TheScorpoi) - 98491**
- - **[Daniel Figueiredo](https://github.com/) - 98491**
+ - **[Daniel Figueiredo](https://github.com/daniff15) - 98491**

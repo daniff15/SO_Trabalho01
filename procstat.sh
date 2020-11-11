@@ -24,6 +24,7 @@
 hnfhnfthnfthnthn 
 
 
+os herois nao somos nos, sao voces
 
 hkkhkh
 

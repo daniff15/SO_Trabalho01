@@ -15,27 +15,8 @@
 # ######################################################################
 
 
+ola e eu sou gay
 
-
-
-<<<<<<< HEAD
-=======
-
-
-
-hnfhnfthnfthnthn 
-
-
-os herois nao somos nos, sao voces
-
-hkkhkh
-
-
-
-
-
-
->>>>>>> 37b75390fa20148dd7443556b84cd38b8e51a5d7
 #template de como fazer um menu/aquilo dos -m -t -d -q -r ...
 #function menu() {
 #

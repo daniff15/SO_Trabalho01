@@ -18,20 +18,6 @@
 
 
 
-
-
-
-hnfhnfthnfthnthn 
-
-
-
-hkkhkh
-
-
-
-
-
-
 #template de como fazer um menu/aquilo dos -m -t -d -q -r ...
 #function menu() {
 #

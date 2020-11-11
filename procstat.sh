@@ -14,8 +14,7 @@
 #
 # ######################################################################
 
-ta  adar uamsmdas
-ola meus putos
+ajksdjkasnd
 
 #template de como fazer um menu/aquilo dos -m -t -d -q -r ...
 #function menu() {

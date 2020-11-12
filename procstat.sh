@@ -12,7 +12,27 @@
 # Pedro Sobral, nMec: 98491
 # Daniel Figueireo, nMec: 98498
 #
-# ######################################################################
+# #######################################################################
+
+
+
+
+if [ $1 == "a" ]; then
+    cat /proc/$$/status | grep VmSize
+    cat /proc/$$/status | grep VmRSS
+    cat /proc/$$/io | grep rchar
+    cat /proc/$$/io | grep wchar
+    cat /proc/$$/comm
+    # Para o alias correr, tem de se correr assim: 'source procstat.sh a'
+    alias pss='ps -A --format comm,pid,ppid,pgid,sid'
+    pss
+else
+    echo "Deu merda zé"
+fi
+
+# alias pss= "ps -A --format comm,pid,ppid,pgid,sid"
+
+
 
 
 

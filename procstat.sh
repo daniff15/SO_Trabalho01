@@ -34,7 +34,7 @@
 # para fazer o raterw e o rater
 rchar1=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
 wchar1=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' ) 
-sleep 2
+sleep .5
 rchar2=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' ) 
 wchar2=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
 rateR=$(echo "$rchar2/$rchar1" | bc -l)
@@ -42,6 +42,8 @@ rateW=$(echo "$wchar2/$wchar1" | bc -l)
 echo "$rateR"
 echo "$rateW"
 
+ola=$(cat /proc/$$ | ps --format comm,pid,ppid,pgid,sid)
+echo $ola
 
 #printf "%s %10s %10s %10s %10s\n" "VMSIZE" "VMRSS" "RCHAR" "WCHAR" "COMM" 
 #for entry in /proc/*; do
@@ -53,12 +55,7 @@ echo "$rateW"
 #            wchar=$(cat $entry/io | grep wchar | tr -dc '0-9' )   
 #        fi
 #        comm=$(cat $entry/comm)
-#        printf "%d %10d %10d %10d %10s\n" $VmSize $VmRss $rchar $wchar $comm
-#        echo "--------------------------------------------------------------------"
-#    fi
-
-#done
-    
+#        printf "%d %10d %10d %10d %10s\n" $VmSize $VmRss $rchar $wchar $
 
 
 

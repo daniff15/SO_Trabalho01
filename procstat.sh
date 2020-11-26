@@ -16,35 +16,23 @@
 
 
 
+# let's be intelegents and do some function, coz doing always comments its boring and wastefull
 
-#if [ $1 == "a"]; then
-#    cat /proc/$$/status | grep VmSize
-#    cat /proc/$$/status | grep VmRSS
-#    cat /proc/$$/io | grep rchar
-#    cat /proc/$$/io | grep wchar
-#    cat /proc/$$/comm
-#    # Para o alias correr, tem de se correr assim: 'source procstat.sh a'
-#    alias pss='ps -A --format comm,pid,ppid,pgid,sid'
-#    pss
-#else
-#    echo "Deu merda zé"
-#fi
+function rates(){
+para fazer o raterw e o rater
+rchar1=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
+wchar1=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
+sleep .5
+rchar2=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
+wchar2=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
+rateR=$(echo "$rchar2/$rchar1" | bc -l)
+rateW=$(echo "$wchar2/$wchar1" | bc -l)
+echo "$rateR"
+echo "$rateW"
+}
 
 
-# para fazer o raterw e o rater
-#rchar1=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
-#wchar1=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
-#sleep .5
-#rchar2=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
-#wchar2=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
-#rateR=$(echo "$rchar2/$rchar1" | bc -l)
-#rateW=$(echo "$wchar2/$wchar1" | bc -l)
-#echo "$rateR"
-#echo "$rateW"
-
-#ola=$(cat /proc/$$ | ps --format comm,pid,ppid,pgid,sid)
-#echo $ola
-
+function listarProcessos(){
 printf "%s %10s %10s %10s %10s\n" "VMSIZE" "VMRSS" "RCHAR" "WCHAR" "COMM"
 for entry in /proc/*; do
     if [ -d $entry ]; then
@@ -59,6 +47,10 @@ for entry in /proc/*; do
         printf "%d %10d %10d %10d %10s\n" $VmSize $VmRss $rchar $wchar $comm
         echo "========================================================================"
 done
+}
+listarProcessos
+
+
 
 #template de como fazer um menu/aquilo dos -m -t -d -q -r ...
 #function menu() {

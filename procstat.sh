@@ -19,34 +19,44 @@
 # let's be intelegents and do some function, coz doing always comments its boring and wastefull
 
 function rates(){
-para fazer o raterw e o rater
-rchar1=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
-wchar1=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
-sleep .5
-rchar2=$(cat /proc/$$/io | grep rchar | tr -dc '0-9' )
-wchar2=$(cat /proc/$$/io | grep wchar | tr -dc '0-9' )
-rateR=$(echo "$rchar2/$rchar1" | bc -l)
-rateW=$(echo "$wchar2/$wchar1" | bc -l)
-echo "$rateR"
-echo "$rateW"
+
+    ##
+    ## Isto esta mal, a conta é (rchar2 - rchar1) / sec
+    ##
+    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')
+    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )
+    sleep 1
+    rchar2=$(cat /proc/$entry/io | grep rchar | tr -dc '0-9' )
+    wchar2=$(cat /proc/$entry/io | grep wchar | tr -dc '0-9' )
+    rateR=$(echo "$rchar2/$1" | bc -l)
+    rateW=$(echo "$wchar2/$2" | bc -l)
 }
 
 
 function listarProcessos(){
-printf "%s %10s %10s %10s %10s\n" "VMSIZE" "VMRSS" "RCHAR" "WCHAR" "COMM"
-for entry in /proc/*; do
-    if [ -d $entry ]; then
-        VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')
-        VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')
-        if [ -x $entry ]; then
-            rchar=$(cat $entry/io | grep rchar | tr -dc '0-9')
-            wchar=$(cat $entry/io | grep wchar | tr -dc '0-9' )
+    for entry in /proc/*; do
+        printf "%s %10s %10s %10s %10s %10s %10s %10s \n" "COMM" "USER" "VMSIZE" "VMRSS" "RCHAR" "WCHAR" "RATER" "RATEW"
+
+        PID=$(cat $entry/status | grep Pid)
+        echo $PID
+        #ps -o user= -p PID
+        if [ -f $entry/status ]; then
+            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')
+            VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')
+            if [ -x $entry ]; then
+                rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')
+                wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )
+                #sleep .1
+                #rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )
+                #wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )
+                #rateR=$(echo "$rchar2/$rchar1" | bc -l)
+                #rateW=$(echo "$wchar2/$wchar1" | bc -l)
+            fi
         fi
-    fi
-        comm=$(cat $entry/comm)
-        printf "%d %10d %10d %10d %10s\n" $VmSize $VmRss $rchar $wchar $comm
-        echo "========================================================================"
-done
+        #comm=$(cat $entry/comm)
+        printf "%15s %10d %10d %10d %10d\n" $user $VmSize $VmRss $rchar1 $wchar1 #$rateR #$rateW #$comm
+        echo "=================================================================================="
+    done
 }
 listarProcessos
 

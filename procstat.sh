@@ -15,6 +15,17 @@
 #########################################################################
 
 
+# O QUE FALTA
+#
+# FALTA AS OPÇOES QUE TEM ARGUMENTOS 
+#
+# FALTA IR VER COMO SE VAI BUSCAR O ULTIMO ARG PASSADO PARA DOS SEC DOS RATES
+#
+# METER A FUNCAO OPCOES BONITA E APRESENTAVEL
+#
+#
+#
+
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=() # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
@@ -48,21 +59,36 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     case $option in
         c) #Seleção de processos a utilizar atravez de uma expressão regular
             #echo "-c was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         s) #Seleção de processos a visualizar num periodo temporal - data mínima
             #echo "-s was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         e) #Seleção de processos a visualizar num periodo temporal - data máxima
             #echo "-e was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         u) #Seleção de processos a visualizar através do nome do utilizador
             #echo "-u was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         p) #Número de processos a visualizar
             #echo "-p was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         m) #Ordenação da tabela por MEM (decrescente)
-            echo "ENTREIII"
+        
         ;;
         t) #Ordenação da tabela por RSS (decrescente)
             
@@ -89,13 +115,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     fi
 done
 
-echo "========================================"
-echo "========================================"
-printf '%s \n' "${!argOpt[@]}"
-echo "========================================"
-echo "========================================"
-
-
 # NAO SEI OQ ISTO FAZ
 #shift $((OPTIND - 1))
 
@@ -118,15 +137,15 @@ function listarProcessos(){
             if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then
                 if [ -f $entry/status ]; then
                     sec=0.1
-                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')         #rchar inicial
-                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar inicial
-                    #sleep $sec                                                    #tempo em espera
-                    #rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )        #rchar apos s segundos
-                    #wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar apos s segundos
-                    #rateR=$(echo "($rchar2-$rchar1)/$sec" | bc )                  #calculo do rateR
-                    #rateW=$(echo "($wchar2-$wchar1)/$sec" | bc )                  #calculo do rateW
-                    rateR=0
-                    rateW=0
+                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')        #rchar inicial
+                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )       #wchar inicial
+                    sleep $sec                                                 #tempo em espera
+                    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )       #rchar apos s segundos
+                    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )       #wchar apos s segundos
+                    rateR=$(echo "($rchar2-$rchar1)/$sec" | bc )               #calculo do rateR
+                    rateW=$(echo "($wchar2-$wchar1)/$sec" | bc )               #calculo do rateW
+                    #rateR=0
+                    #rateW=0
                     
                 fi
                 comm=$(cat $entry/comm)
@@ -138,56 +157,39 @@ function listarProcessos(){
     done
     
     #printf '%s \n' "${arrayAss[@]}" | sort -n -k4
-    #echo "========
-    #        ============="
     prints
 }
 
 
 function prints(){
     
-    if [[ argOpt[r] ]]; then
+    if [[ -v argOpt[r] ]]; then
         ordem="-n"
     else
         ordem="-rn"
     fi
     
-    if [[ ${argOpt[m]} ]]; then
+
+    if [[ -v argOpt[m] ]]; then
         #Ordenação da tabela pelo MEM
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k4
+        printf '%s \n' "${arrayAss[@]}" | sort $ordem -k4
         
-        elif [[ -v argOpt[t] ]]; then
-        #Ordenação da tabela prlo RSS
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k5
+    elif [[ -v argOpt[t] ]]; then
+    #Ordenação da tabela prlo RSS
+        printf '%s \n' "${arrayAss[@]}" | sort $ordem -k5
         
-        elif [[ -v argOpt[d] ]]; then
-        #Ordenação da tabela pelo RATER
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k8
+    elif [[ -v argOpt[d] ]]; then
+    #Ordenação da tabela pelo RATER
+        printf '%s \n' "${arrayAss[@]}" | sort $ordem -k8
         
-        elif [[ -v argOpt[w] ]]; then
-        #Ordenação da tabela pelo RATEW
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k9
+    elif [[ -v argOpt[w] ]]; then
+    #Ordenação da tabela pelo RATEW
+        printf '%s \n' "${arrayAss[@]}" | sort $ordem -k9
         
-    else [[ -v argOpt[n] ]]
+    else
         #Ordenação default da tabela, ordem alfabética dos processos
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k1
-        
+        printf '%s \n' "${arrayAss[@]}" | sort $ordem -k1
     fi
 }
 
 listarProcessos
-
-# ""CoDIgO"" para as datas, ns nnc tive a calendários na escola
-#elif [[ -v argOpt[s] || -v argOpt[e] ]]; then
-#      	start=$(date -d "${argOpt['s']}" +"%Y-%m-%d ")
-#      	start+="$(echo "${argOpt['s']}" | awk '{print $3}')"
-#      	start=" -s \"$start\" "
-#
-#      	end=$(date -d "${argOpt['e']}" +"%Y-%m-%d ")
-#      	end+="$(echo "${argOpt['e']}" | awk '{print $3}')"
-#      	end=" -t \"$end\" "
-#
-#      	users=$(eval last $start $end | awk '{if($10 !~ /in/) {print $1}}' | sort | uniq | sed '/reboot/d' | sed '/wtmp/d')
-#      else
-#      	users=$(last | awk '{if($10 !~ /in/) {print $1}}' | sort | uniq | sed '/reboot/d' | sed '/wtmp/d')
-#      fi

@@ -14,62 +14,77 @@
 #
 # #######################################################################
 
-##
-##
+
 ## Se estiver com pAtXORa, ir ver como por o header fixo
-##
-##
-##
 
+## NAO SEI ATE QUE PONTO ISTO É UTIL/FUNCIONAL
+function opcoes(){
+    echo "
+    ************************************************************************************************
 
-function rates(){
-    
-    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')
-    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )
-    sleep .1
-    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )
-    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )
-    rateR=$(echo "($rchar2-$rchar1)/0.1" | bc -l)
-    rateW=$(echo "($wchar2-$wchar1)/0.1" | bc -l)
+    OPÇÃO INVÁLIDA!
+
+    -c          : search for users that has regex OPTION
+	-u          : seacrh for users that belongs to group OPTION
+	-r          : command last retrieves information from the FILE
+	-s          : shows sessions after DATE
+	-e          : show sessions before DATE
+	-d	        : reverse order
+	-d	        : sorts the sessions by number of sessions
+	-m	        : sorts the sessions by time
+	-t	        : sorts the sessions by max time
+	-w	        : sorts the sessions by min time
+    -p          :
+
+    ************************************************************************************************"
 }
 
+declare -A arrayAss=() # Array Associativo  
 
 function listarProcessos(){
-    printf "%-30s %-10s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
+    #Cabeçalho
+    printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/*; do
         if [[ -f $entry/comm ]]; then
-            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9')
-            user=$(ps -o user= -p $PID)
+            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9')               #ir buscar o PID
+            user=$(ps -o user= -p $PID)                                         #ir buscar o user do PID
             startDate=$(ps -o lstart= -p $PID)                                  #data de início do processo atraves do PID
             startDate=$(date +"%b %d %H:%M" -d "$startDate")                    #formatação da data conforme o guião
             
-            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')
+            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')        
             VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')
+            
             if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then
                 if [ -f $entry/status ]; then
                     
-                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')
-                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )
-                    sleep 2
-                    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )
-                    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )
-                    rateR=$(echo "($rchar2-$rchar1)/2" | bc )
-                    rateW=$(echo "($wchar2-$wchar1)/2" | bc )
-                    #rateR e rateW = 0, para isto correr e n chatear
-                    #rateR=0
-                    #rateW=0
+                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')         #rchar inicial
+                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar inicial
+                    sleep $1                                                    #tempo em espera
+                    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )        #rchar apos s segundos
+                    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar apos s segundos
+                    rateR=$(echo "($rchar2-$rchar1)/$1" | bc )                  #calculo do rateR
+                    rateW=$(echo "($wchar2-$wchar1)/$1" | bc )                  #calculo do rateW
                     
                 fi
                 comm=$(cat $entry/comm)
-            printf "%-30s %-10s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" $user $PID $VmSize $VmRss $rchar1 $wchar1 $rateR $rateW  "$startDate"
+
+                #fizemos arrayAss[$PID] pelo $PID, pq cada processo tem um diferente, e é uma boa maniera de os distinguir visto que assim não há colisão de informação
+                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
+
             fi
         fi
     done
+    
+    printf '%s \n' "${arrayAss[@]}" | sort -n -k1                               #-n sort crescente -rn sort decrescente -k'?' para ordenar por essa ordem (-rn ou -n) a coluna '?'
+    
 }
-listarProcessos
 
+if [[ $# == 1 ]]; then
+        listarProcessos $1
+    fi
 
 while getopts "c:u:rs:e:dmtwp:" opt; do
+    
     case $opt in
         c)
             echo "-c was triggered! Parameter: $OPTARG"
@@ -101,8 +116,8 @@ while getopts "c:u:rs:e:dmtwp:" opt; do
         r)
             echo "-b was triggered!"
         ;;
-        \?)
-            echo "Invalid option: -$OPTARG"
+        *)
+            opcoes
         ;;
     esac
 done

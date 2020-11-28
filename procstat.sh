@@ -41,7 +41,6 @@ function opcoes(){
     ************************************************************************************************"
 }
 
-
 #Tratamentos das opçoes passadas como argumentos
 
 while getopts "c:u:rs:e:dmtwp:" option; do
@@ -63,7 +62,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
             #echo "-p was triggered! Parameter: $OPTARG"
         ;;
         m) #Ordenação da tabela por MEM (decrescente)
-            
+            echo "ENTREIII"
         ;;
         t) #Ordenação da tabela por RSS (decrescente)
             
@@ -83,12 +82,23 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         ;;
     esac
     
-    if [[ -x "$OPTARG" ]]; then
-        argOpt[$option]=${OPTARG}
+    if [[ -z "$OPTARG" ]]; then
+        argOpt[$option]="none"
     else
-        argOpt[$option]=$[OPTARG]
+        argOpt[$option]=${OPTARG}
     fi
 done
+
+echo "========================================"
+echo "========================================"
+printf '%s \n' "${!argOpt[@]}"
+echo "========================================"
+echo "========================================"
+
+
+# NAO SEI OQ ISTO FAZ
+#shift $((OPTIND - 1))
+
 
 #Tratamento dos dados lidos
 function listarProcessos(){
@@ -104,54 +114,57 @@ function listarProcessos(){
             VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')
             VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')
             
+            #nao sei se este if faz sentido
             if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then
                 if [ -f $entry/status ]; then
-                    
-                    #rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')         #rchar inicial
-                    #wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar inicial
-                    #sleep $1                                                    #tempo em espera
+                    sec=0.1
+                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')         #rchar inicial
+                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar inicial
+                    #sleep $sec                                                    #tempo em espera
                     #rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )        #rchar apos s segundos
                     #wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar apos s segundos
-                    #rateR=$(echo "($rchar2-$rchar1)/$1" | bc )                  #calculo do rateR
-                    #rateW=$(echo "($wchar2-$wchar1)/$1" | bc )                  #calculo do rateW
+                    #rateR=$(echo "($rchar2-$rchar1)/$sec" | bc )                  #calculo do rateR
+                    #rateW=$(echo "($wchar2-$wchar1)/$sec" | bc )                  #calculo do rateW
                     rateR=0
                     rateW=0
-
+                    
                 fi
                 comm=$(cat $entry/comm)
                 
                 #fizemos arrayAss[$PID] pelo $PID, pq cada processo tem um diferente, e é uma boa maniera de os distinguir visto que assim não há colisão de informação
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
-                
             fi
         fi
     done
     
+    #printf '%s \n' "${arrayAss[@]}" | sort -n -k4
+    #echo "========
+    #        ============="
     prints
 }
 
 
 function prints(){
     
-    if [[ -v argOpt[r] ]]; then
-        ordem = "-n"
+    if [[ argOpt[r] ]]; then
+        ordem="-n"
     else
-        ordem = "-rn"
+        ordem="-rn"
     fi
     
-    if [[ -v argOpt[m] ]]; then
+    if [[ ${argOpt[m]} ]]; then
         #Ordenação da tabela pelo MEM
-        printf '%s \n' "${arrayAss[@]}" | sort $order -k4,4
+        printf '%s \n' "${arrayAss[@]}" | sort $order -k4
         
-    elif [[ -v argOpt[t] ]]; then
+        elif [[ -v argOpt[t] ]]; then
         #Ordenação da tabela prlo RSS
         printf '%s \n' "${arrayAss[@]}" | sort $order -k5
         
-    elif [[ -v argOpt[d] ]]; then
+        elif [[ -v argOpt[d] ]]; then
         #Ordenação da tabela pelo RATER
         printf '%s \n' "${arrayAss[@]}" | sort $order -k8
         
-    elif [[ -v argOpt[w] ]]; then
+        elif [[ -v argOpt[w] ]]; then
         #Ordenação da tabela pelo RATEW
         printf '%s \n' "${arrayAss[@]}" | sort $order -k9
         
@@ -159,19 +172,22 @@ function prints(){
         #Ordenação default da tabela, ordem alfabética dos processos
         printf '%s \n' "${arrayAss[@]}" | sort $order -k1
         
-    fi 
+    fi
 }
 
 listarProcessos
 
-#template de como fazer um menu/aquilo dos -m -t -d -q -r ...
-#function menu() {
+# ""CoDIgO"" para as datas, ns nnc tive a calendários na escola
+#elif [[ -v argOpt[s] || -v argOpt[e] ]]; then
+#      	start=$(date -d "${argOpt['s']}" +"%Y-%m-%d ")
+#      	start+="$(echo "${argOpt['s']}" | awk '{print $3}')"
+#      	start=" -s \"$start\" "
 #
-#    if [[ -v argOpt[n] ]]; then
-#        # ordenar por numero de sessoes
-#        printf "%s\n" "${userInfo[@]}" | sort -k2,2 ${order}
-#    else
-#        #ordem crescente (nome user)
-#        printf "%s\n" "${userInfo[@]}" | sort -k1,1 ${order}
-#    fi
-#}
+#      	end=$(date -d "${argOpt['e']}" +"%Y-%m-%d ")
+#      	end+="$(echo "${argOpt['e']}" | awk '{print $3}')"
+#      	end=" -t \"$end\" "
+#
+#      	users=$(eval last $start $end | awk '{if($10 !~ /in/) {print $1}}' | sort | uniq | sed '/reboot/d' | sed '/wtmp/d')
+#      else
+#      	users=$(last | awk '{if($10 !~ /in/) {print $1}}' | sort | uniq | sed '/reboot/d' | sed '/wtmp/d')
+#      fi

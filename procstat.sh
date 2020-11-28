@@ -15,6 +15,17 @@
 #########################################################################
 
 
+# O QUE FALTA
+#
+# FALTA AS OPÇOES QUE TEM ARGUMENTOS 
+#
+# FALTA IR VER COMO SE VAI BUSCAR O ULTIMO ARG PASSADO PARA DOS SEC DOS RATES
+#
+# METER A FUNCAO OPCOES BONITA E APRESENTAVEL
+#
+#
+#
+
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=() # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
@@ -48,21 +59,35 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     case $option in
         c) #Seleção de processos a utilizar atravez de uma expressão regular
             #echo "-c was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         s) #Seleção de processos a visualizar num periodo temporal - data mínima
             #echo "-s was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         e) #Seleção de processos a visualizar num periodo temporal - data máxima
             #echo "-e was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         u) #Seleção de processos a visualizar através do nome do utilizador
             #echo "-u was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         p) #Número de processos a visualizar
             #echo "-p was triggered! Parameter: $OPTARG"
+            if [ ${OPTARG:0:1} == "-" ]; then
+                usage
+            fi
         ;;
         m) #Ordenação da tabela por MEM (decrescente)
-
         ;;
         t) #Ordenação da tabela por RSS (decrescente)
             
@@ -88,7 +113,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         argOpt[$option]=${OPTARG}
     fi
 done
-
 
 # NAO SEI OQ ISTO FAZ
 #shift $((OPTIND - 1))
@@ -137,7 +161,7 @@ function listarProcessos(){
 
 function prints(){
     
-    if [[ argOpt[r] ]]; then
+    if [[ -v argOpt[r] ]]; then
         ordem="-n"
     else
         ordem="-rn"
@@ -159,7 +183,7 @@ function prints(){
         #Ordenação da tabela pelo RATEW
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k9
         
-    else [[ -v argOpt[n] ]]
+    else
         #Ordenação default da tabela, ordem alfabética dos processos
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k1
         

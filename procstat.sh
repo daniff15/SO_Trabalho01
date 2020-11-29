@@ -19,11 +19,7 @@
 #
 # FALTA AS OPÇOES QUE TEM ARGUMENTOS 
 #
-# FALTA IR VER COMO SE VAI BUSCAR O ULTIMO ARG PASSADO PARA DOS SEC DOS RATES
-#
-# METER A FUNCAO OPCOES BONITA E APRESENTAVEL
-#
-#
+# FAZER FUNÇÃO PARA O GETOPTS E O WHILE...
 #
 
 #Arrays
@@ -32,32 +28,28 @@ declare -A argOpt=() # Array Associativo: está guardada a informação das opç
 
 
 function opcoes(){
-    echo "
-    ************************************************************************************************
-
-    OPÇÃO INVÁLIDA!
-
-    -c          : search for users that has regex OPTION
-	-u          : seacrh for users that belongs to group OPTION
-	-r          : command last retrieves information from the FILE
-	-s          : shows sessions after DATE
-	-e          : show sessions before DATE
-	-d	        : reverse order
-	-d	        : sorts the sessions by number of sessions
-	-m	        : sorts the sessions by time
-	-t	        : sorts the sessions by max time
-	-w	        : sorts the sessions by min time
-    -p          :
-
-    ************************************************************************************************"
+    echo "************************************************************************************************"
+    echo "OPÇÃO INVÁLIDA!"
+    echo "    -c        : Seleção de processos a utilizar atravez de uma expressão regular"
+	echo "    -u        : Seleção de processos a visualizar através do nome do utilizador"
+	echo "    -r        : Ordenação reversa"
+	echo "    -s        : Seleção de processos a visualizar num periodo temporal - data mínima"
+	echo "    -e        : Seleção de processos a visualizar num periodo temporal - data máxima"
+	echo "    -d	      : Ordenação da tabela por RATER (decrescente)"
+	echo "    -m	      : Ordenação da tabela por MEM (decrescente)"
+	echo "    -t	      : Ordenação da tabela por RSS (decrescente)"
+	echo "    -w        : Ordenação da tabela pOR RATEW (decrescente)"
+    echo "    -p        : Número de processos a visualizar"
+    echo "************************************************************************************************"
 }
 
 #Tratamentos das opçoes passadas como argumentos
 
+
 while getopts "c:u:rs:e:dmtwp:" option; do
     
     case $option in
-        c) #Seleção de processos a utilizar atravez de uma expressão regular
+        c) #Seleção de processos a utilizar atraves de uma expressão regular
             #echo "-c was triggered! Parameter: $OPTARG"
             if [ ${OPTARG:0:1} == "-" ]; then
                 usage
@@ -114,9 +106,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     fi
 done
 
-# NAO SEI OQ ISTO FAZ
-#shift $((OPTIND - 1))
-
 
 #Tratamento dos dados lidos
 function listarProcessos(){
@@ -138,11 +127,11 @@ function listarProcessos(){
                     sec=$1
                     rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')         #rchar inicial
                     wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar inicial
-                    sleep $sec                                                    #tempo em espera
+                    sleep $sec                                                  #tempo em espera
                     rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9' )        #rchar apos s segundos
                     wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9' )        #wchar apos s segundos
-                    rateR=$(echo "($rchar2-$rchar1)/$sec" | bc )                  #calculo do rateR
-                    rateW=$(echo "($wchar2-$wchar1)/$sec" | bc )                  #calculo do rateW
+                    rateR=$(echo "($rchar2-$rchar1)/$sec" | bc )                #calculo do rateR
+                    rateW=$(echo "($wchar2-$wchar1)/$sec" | bc )                #calculo do rateW
                     #rateR=0
                     #rateW=0
                     
@@ -153,11 +142,47 @@ function listarProcessos(){
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
             fi
         fi
+
+        ##NÚMERP DE PROCESSOS A VISUALIZAR
+        #if [[ -v optOpt[p] ]]; then
+            # ns deve ser com o head, mas acho q so se pode fazer isso no fim
+            # pq, queremos so 5 processos e ordenados pela maneira x
+            # primeiro temos de ordenar, e so depois e que vamos buscar os 5 processos
+        #fi
+
+        ##DATAS
+        ## deve ser alguma coisa parecida a isto, ver oq é p eval last linha 114 
+        #if [[ -v argOpt[s] || -v argOpt[e] ]]; then
+
+            ## NAO SEI COMO, MAS PASSAR ESTAS 2 VARIÁVEIS PARA SEGUNDOS
+            #start=$(date -d "${argOpt['s']}" +"%b %d %H:%M")
+            #end=$(date -d "${argOpt['e']}" +"%b %d %H:%M")
+
+            #if [[ $startDate < $end && $startDate > $start]]; then
+            #    arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
+            #fi
+
+        #fi
+
+        ##UTILIZADOR
+        #if [[ -v argOpt[c] ]]; then
+        #    userMatch="${argOpt['c']}"
+        #    if [[ $userMatch -eq $user ]]; then
+        #        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
+
+        #    fi
+            
+        #fi
+
+        ## VER PROCESSOS ATRAVES DE UMA EXPRESSÃO REGULAR
+        ##
+        ##
+        ##
+    
     done
     
     prints
 }
-
 
 function prints(){
     
@@ -191,5 +216,4 @@ function prints(){
 
 }
 
-listarProcessos ${@: -1}
-
+listarProcessos ${@: -1} #este agumento passado é para os segundos, visto que e passado em todas as opções

@@ -15,7 +15,7 @@ Antes de executar o *script*, terá de lhe atribuir permissões, para isso tera 
 
 ```
 chmod u+x procstat.sh
-./procstat.sh (...)
+.sudo /procstat.sh [opções]
 ```
 
 ### Relatório

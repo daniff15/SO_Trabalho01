@@ -106,7 +106,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     fi
 done
 
-
+printf '%s\n' "${argOpt[@]}"
 #Tratamento dos dados lidos
 function listarProcessos(){
     #Cabeçalho
@@ -139,7 +139,7 @@ function listarProcessos(){
                 comm=$(cat $entry/comm)
                 
                 #fizemos arrayAss[$PID] pelo $PID, pq cada processo tem um diferente, e é uma boa maniera de os distinguir visto que assim não há colisão de informação
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
+                #arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
             fi
         fi
 
@@ -216,4 +216,23 @@ function prints(){
 
 }
 
-listarProcessos ${@: -1} #este agumento passado é para os segundos, visto que e passado em todas as opções
+#listarProcessos ${@: -1} #este agumento passado é para os segundos, visto que e passado em todas as opções
+
+
+if [[ -v argOpt[s] || -v argOpt[e] ]]; then
+    echo "BASH É MERDA"
+
+    #         NAO SEI COMO, MAS PASSAR ESTAS 2 VARIÁVEIS PARA SEGUNDOS
+    start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}' )
+        #start+="$(echo "${argOpt['s']}" | awk '{print $3}')"
+      	#start=" -s \"$start\" "
+    end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}' )
+            
+
+    dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}' )
+        
+    if [[ $dateSeg < $end && $dateSeg > $start]]; then
+       arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
+    fi
+
+fi

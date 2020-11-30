@@ -16,6 +16,7 @@
 #
 # FAZER AS POSSIBILIDADES DAS OPÇOES COM ARGUMENTO :/
 # FAZER IF PRA VER SE TEM PERMISSAO PARA NAO USAR O SUDO
+# NA OPCAO COM -c E -p AQUELA MERDA AINDA N DA 100% BEM
 #
 
 
@@ -151,7 +152,7 @@ function listarProcessos() {
                         #Seleção de processos a utilizar com expressão regular e número de processos a utilizar
                         elif [[ -v argOpt[c] && -v argOpt[p] ]]; then
                         
-                        if [[ $comm =~ ${argOpt['c']} && $i < ${argOpt['p']} ]]; then
+                        if [[ $comm -ne ${argOpt['c']} && $i -lt ${argOpt['p']} ]]; then
                             arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
                             let "i=i+1"
                         fi

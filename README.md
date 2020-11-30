@@ -33,9 +33,9 @@ Para executar o *script prochstat.sh* há estas opções disponíveis:
 Seguem-se alguns exemplos de execução:
 
 ```
-sudo ./procstat.sh -m -r 10
-sudo ./procstat.sh -s "Nov 29 13:10" -e "Nov 19 16:30" 10
-sudo ./procstat.sh -t -c "sys.*" 10
+./procstat.sh -m -r 10
+./procstat.sh -s "Nov 29 13:10" -e "Nov 19 16:30" 10
+./procstat.sh -t -c "sys.*" 10
 ```
 
 ### Relatório

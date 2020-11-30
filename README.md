@@ -2,14 +2,14 @@
 Trabalho Prático 01 - SO
 
 ## Estatísticas de Processamento em Bash
-Este script permite a visualização da quantidade de memória total e da memória residente em memória física, do número total de bytes I/O,e da e taxa de leitura/escrita (bytes/sec) dos processos seleccionados nos últimos s segundos.
+Este script permite a visualização da quantidade de memória total e da memória residente em memória física, do número total de bytes I/O,e da e taxa de leitura/escrita (bytes/sec) dos processos seleccionados nos últimos sec segundos.
 
 ###  Início
 Bem-vIndo ao README.md, aqui é possível ver todas as instruções para executar e entender o projeto realizado.
 
 ### Pré-requesitos 
-Para executar o *script procstat.sh* precisa de um terminal bash, pode ser numa máquina com uma distribuição Ubuntu, ou numa vitual box.
-Antes de executar o *script*, terá de lhe atribuir permissões, para isso tera de executar o seguinte código na pasta onde se encontra o *procstat.sh* :
+Para executar o *script procstat.sh* precisa de um terminal bash, pode ser numa máquina com uma distribuição Ubuntu, ou numa virtual box.
+Antes de executar o *script*, terá de lhe atribuir permissões, para isso terá de executar o seguinte código na pasta onde se encontra o *procstat.sh* :
 
 ```
 chmod u+x procstat.sh

@@ -5,17 +5,37 @@ Trabalho Prático 01 - SO
 Este script permite a visualização da quantidade de memória total e da memória residente em memória física, do número total de bytes I/O,e da e taxa de leitura/escrita (bytes/sec) dos processos seleccionados nos últimos s segundos.
 
 ###  Início
-Bem-vIndo ao README.md, aqui verás todas as instruções para executares e perceberes o projeto.
+Bem-vIndo ao README.md, aqui é possível ver todas as instruções para executar e entender o projeto realizado.
 
 ### Pré-requesitos 
-Para executar o *script procstat.sh* precisa de um terminal bash, pode ser numa máquina com uma distribuição Ubunto, ou numa vitual box.
-Antes de executar o *script*, terá de lhe atribuir permissões, para isso tera de executar o seguinte código na pasta onde se encontra o *procstat.sh*
-
-| WARNING: POR AQUI AS VÁRIAS FORMAS DE CORRER, BASICAMENTE AS OPÇOES DO MENU |
+Para executar o *script procstat.sh* precisa de um terminal bash, pode ser numa máquina com uma distribuição Ubuntu, ou numa vitual box.
+Antes de executar o *script*, terá de lhe atribuir permissões, para isso tera de executar o seguinte código na pasta onde se encontra o *procstat.sh* :
 
 ```
 chmod u+x procstat.sh
-.sudo /procstat.sh [opções]
+```
+
+### Opções para executar o script
+
+Para executar o *script prochstat.sh* há estas opções disponíveis:
+
+    -c          : Seleção de processos a utilizar atravez de uma expressão regular
+    -u          : Seleção de processos a visualizar através do nome do utilizador
+    -r          : Ordenação reversa
+    -s          : Seleção de processos a visualizar num periodo temporal - data mínima
+    -e          : Seleção de processos a visualizar num periodo temporal - data máxima
+    -d          : Ordenação da tabela por RATER (decrescente)
+    -m          : Ordenação da tabela por MEM (decrescente)
+    -t          : Ordenação da tabela por RSS (decrescente)
+    -w          : Ordenação da tabela pOR RATEW (decrescente)
+    -p          : Número de processos a visualizar
+
+Seguem-se alguns exemplos de execução:
+
+```
+sudo ./procstat.sh -m -r 10
+sudo ./procstat.sh -s "Nov 29 13:10" -e "Nov 19 16:30" 10
+sudo ./procstat.sh -t -c "sys.*" 10
 ```
 
 ### Relatório

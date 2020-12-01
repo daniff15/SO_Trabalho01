@@ -4,13 +4,21 @@
 #                                                    SO - Trabalho 1
 #                                           Estatística de Processos em bash
 #
-# Este script permite a visualização da quantidade de memória total e da memória residente em memória física, do número 
+# Este script permite a visualização da quantidade de memória total e da memória residente em memória física, do número
 # total de bytes I/O,e da e taxa de leitura/escrita (bytes/sec) dos processos seleccionados nos últimos sec segundos.
 #
 # Pedro Sobral, nMec: 98491
 # Daniel Figueireo, nMec: 98498
 #
 #########################################################################################################################
+
+
+#
+# FAZER AS POSSIBILIDADES DAS OPÇOES COM ARGUMENTO :/
+# FAZER IF PRA VER SE TEM PERMISSAO PARA NAO USAR O SUDO
+# NA OPCAO COM -c E -p AQUELA MERDA AINDA N DA 100% BEM
+#
+
 
 
 #Arrays
@@ -38,43 +46,44 @@ function opcoes() {
 
 #Tratamentos das opçoes passadas como argumentos
 while getopts "c:u:rs:e:dmtwp:" option; do
-
+    
     case $option in
-    c) #Seleção de processos a utilizar atraves de uma expressão regular
-
+        c) #Seleção de processos a utilizar atraves de uma expressão regular
+            
         ;;
-    s) #Seleção de processos a visualizar num periodo temporal - data mínima
-
+        s) #Seleção de processos a visualizar num periodo temporal - data mínima
+            
         ;;
-    e) #Seleção de processos a visualizar num periodo temporal - data máxima
-
+        e) #Seleção de processos a visualizar num periodo temporal - data máxima
+            
         ;;
-    u) #Seleção de processos a visualizar através do nome do utilizador
-
+        u) #Seleção de processos a visualizar através do nome do utilizador
+            
         ;;
-    p) #Número de processos a visualizar
-
+        p) #Número de processos a visualizar
+            
         ;;
-    m) #Ordenação da tabela por MEM (decrescente)
+        m) #Ordenação da tabela por MEM (decrescente)
+            
         ;;
-    t) #Ordenação da tabela por RSS (decrescente)
-
+        t) #Ordenação da tabela por RSS (decrescente)
+            
         ;;
-    d) #Ordenação da tabela por RATER (decrescente)
-
+        d) #Ordenação da tabela por RATER (decrescente)
+            
         ;;
-    w) #Ordenação da tabela pOR RATEW (decrescente)
-
+        w) #Ordenação da tabela pOR RATEW (decrescente)
+            
         ;;
-    r) #Ordenação reversa
-
+        r) #Ordenação reversa
+            
         ;;
-    *) #Passagem de argumentos inválidos
-        opcoes
-        exit
+        *) #Passagem de argumentos inválidos
+            opcoes
+            exit
         ;;
     esac
-
+    
     #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
     if [[ -z "$OPTARG" ]]; then
         argOpt[$option]="nada"
@@ -88,115 +97,117 @@ function listarProcessos() {
     
     #Cabeçalho
     printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
-    for entry in /proc/*; do
-        if [[ -f $entry/comm ]]; then
-            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9')           # ir buscar o PID
-            user=$(ps -o user= -p $PID)                                     # ir buscar o user do PID
-            startDate=$(ps -o lstart= -p $PID)                              # data de início do processo atraves do PID
-            startDate=$(date +"%b %d %H:%M" -d "$startDate")                # formatação da data conforme o guião
-
-            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')        # ir buscar o VmSize
-            VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')          # ir buscar o VmRss
-
-            if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then                       
-                if [ -f $entry/status ]; then
-                    sec=$1                                                  # guardar em sec os segundos passados nos argumentos
-                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')     # rchar inicial
-                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9')     # wchar inicial
-                    sleep $sec                                              # tempo em espera
-                    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9')     # rchar apos s segundos
-                    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9')     # wchar apos s segundos
-                    rateR=$(echo "($rchar2-$rchar1)/$sec" | bc)             # calculo do rateR
-                    rateW=$(echo "($wchar2-$wchar1)/$sec" | bc)             # calculo do rateW
-
-                fi
-                comm=$(cat $entry/comm)                                     # ir buscar o comm
-
-                #Seleção de processos a visualizar num periodo temporal
-                if [[ -v argOpt[s] && -v argOpt[e] ]]; then
-
-                    start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')  # data mínima
-                    end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')    # data máxima
-                    dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')    # data do processo
-
-                    if [[ $dateSeg < $end && $dateSeg > $start ]]; then
-                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
-                    fi
+    for entry in /proc/[[:digit:]]*; do
+        #if ! [[ -x $entry ]]; then ##SUPOSTAMENTE É PARA VER SE TEMOS PERMISSAO, DONT WORK
+            
+            if [[ -f $entry/comm ]]; then
+                PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9')           # ir buscar o PID
+                user=$(ps -o user= -p $PID)                                     # ir buscar o user do PID
+                startDate=$(ps -o lstart= -p $PID)                              # data de início do processo atraves do PID
+                startDate=$(date +"%b %d %H:%M" -d "$startDate")                # formatação da data conforme o guião
                 
-                #Seleção de processos a visualizar através do nome do utilizador
-                elif [[ -v argOpt[u] ]]; then
-                    userMatch="${argOpt['u']}"
-
-                    if [[ $userMatch = $user ]]; then
-                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
-                    fi
-
-                #Seleção de processos a utilizar atraves de uma expressão regular
-                elif [[ -v argOpt[c] ]]; then
-
-                    if [[ $comm =~ ${argOpt['c']} ]]; then
-                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")                        
-                    fi
+                VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9')        # ir buscar o VmSize
+                VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')          # ir buscar o VmRss
                 
-                #Seleção de processos a utilizar com expressão regular e número de processos a utilizar
-                elif [[ -v argOpt[c] && -v argOpt[p] ]]; then
+                if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then
+                    if [ -f $entry/status ]; then
+                        sec=$1                                                  # guardar em sec os segundos passados nos argumentos
+                        rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')     # rchar inicial
+                        wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9')     # wchar inicial
+                        sleep $sec                                              # tempo em espera
+                        rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9')     # rchar apos s segundos
+                        wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9')     # wchar apos s segundos
+                        rateR=$(echo "($rchar2-$rchar1)/$sec" | bc)             # calculo do rateR
+                        rateW=$(echo "($wchar2-$wchar1)/$sec" | bc)             # calculo do rateW
+                        
+                    fi
+                    comm=$(cat $entry/comm | tr " " "_")                        # ir buscar o comm,e rerirar os espaços e substituir por '_' nos comm's com 2 nomes
                     
-                    if [[ $comm =~ ${argOpt['c']} && $i < ${argOpt['p']} ]]; then
-                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")  
-                        let "i=i+1"                      
+                    #Seleção de processos a visualizar num periodo temporal
+                    if [[ -v argOpt[s] && -v argOpt[e] ]]; then
+                        
+                        start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')  # data mínima
+                        end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')    # data máxima
+                        dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')    # data do processo
+                        
+                        if [[ $dateSeg < $end && $dateSeg > $start ]]; then
+                            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+                        fi
+                        
+                        #Seleção de processos a visualizar através do nome do utilizador
+                        elif [[ -v argOpt[u] ]]; then
+                        userMatch="${argOpt['u']}"
+                        
+                        if [[ $userMatch = $user ]]; then
+                            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+                        fi
+                        
+                        #Seleção de processos a utilizar atraves de uma expressão regular
+                        elif [[ -v argOpt[c] ]]; then
+                        
+                        if [[ $comm =~ ${argOpt['c']} ]]; then
+                            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+                        fi
+                        
+                        #Seleção de processos a utilizar com expressão regular e número de processos a utilizar
+                        elif [[ -v argOpt[c] && -v argOpt[p] ]]; then
+                        
+                        if [[ $comm -ne ${argOpt['c']} && $i -lt ${argOpt['p']} ]]; then
+                            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+                            let "i=i+1"
+                        fi
+                        
+                        #Número de processos a visualizar
+                        elif [[ -v argOpt[p] ]]; then
+                        
+                        if [[ $i -le ${argOpt['p']} ]]; then
+                            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+                            let "i=i+1"
+                        fi
+                        
+                        #Ordenação default da tabela, ordem alfabética dos processos
+                    else
+                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
                     fi
-
-                #Número de processos a visualizar
-                elif [[ -v argOpt[p] ]]; then
-
-                    if [[ $i < ${argOpt['p']} ]]; then
-                        arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")                        
-                        let "i=i+1"
-                    fi
-
-                #Ordenação default da tabela, ordem alfabética dos processos
-                else
-                    arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW"  "$startDate");
                 fi
             fi
-        fi
+        #fi
     done
-
+    
     prints
 }
 
 function prints() {
-
+    
     if [[ -v argOpt[r] ]]; then
         ordem="-n"
     else
         ordem="-rn"
     fi
-
+    
     if [[ -v argOpt[m] ]]; then
         #Ordenação da tabela pelo MEM
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k4
-
-    elif [[ -v argOpt[t] ]]; then
+        
+        elif [[ -v argOpt[t] ]]; then
         #Ordenação da tabela pelo RSS
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k5
-
-    elif [[ -v argOpt[d] ]]; then
+        
+        elif [[ -v argOpt[d] ]]; then
         #Ordenação da tabela pelo RATER
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k8
-
-    elif [[ -v argOpt[w] ]]; then
+        
+        elif [[ -v argOpt[w] ]]; then
         #Ordenação da tabela pelo RATEW
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k9
-
+        
     else
         #Ordenação default da tabela, ordem alfabética dos processos
-        #Como é por ordem alfabética temos de mudar a ordem para '-n'
-        ordem="-n"
+        ordem="-n"  #Como é por ordem alfabética temos de mudar a ordem para '-n'
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k1
-
+        
     fi
-
+    
 }
 
 listarProcessos ${@: -1}            #este agumento passado é para os segundos, visto que é passado em todas as opções, e é sempre o último

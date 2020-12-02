@@ -95,7 +95,7 @@ function listarProcessos() {
     #Cabeçalho
     printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/[[:digit:]]*; do
-        if [[ -r $entry/status && -r $entry/io ]]; then ##SUPOSTAMENTE É PARA VER SE TEMOS PERMISSAO, DONT WORK
+        if [[ -r $entry/status && -r $entry/io ]]; then 
             if [[ -f $entry/comm ]]; then
                 PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
                 user=$(ps -o user= -p $PID)                           # ir buscar o user do PID
@@ -105,7 +105,6 @@ function listarProcessos() {
                 VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9') # ir buscar o VmSize
                 VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')   # ir buscar o VmRss
 
-                #if [[ VmSize -ne 0 || VmRss -ne 0 ]]; then
                 if [ -f $entry/status ]; then
                     sec=$1                                              # guardar em sec os segundos passados nos argumentos
                     rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial

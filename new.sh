@@ -15,6 +15,8 @@
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=()   # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
+declare -A R1=()
+declare -A W1=()
 
 i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenacao
 
@@ -126,40 +128,15 @@ function listarProcessos() {
     for entry in /proc/[[:digit:]]*; do
         if [[ -r $entry/status && -r $entry/io ]]; then
             PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
-            
-            rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial
-            wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar inicial
+            rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')   # rchar inicial
+            wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9')   # wchar inicial
 
-            comm=$(cat $entry/comm | tr " " "_") # ir buscar o comm,e retirar os espaços e substituir por '_' nos comm's com 2 nomes
-
-            #Seleção de processos a visualizar através do nome do utilizador
-            if [[ -v argOpt[u] && ! ${argOpt['u']} == $user ]]; then
+            if [[ $rchar1 == 0 && $wchar1 == 0 ]]; then
                 continue
+            else
+                R1[$PID]=$(printf "%12d\n" "$rchar1")
+                W1[$PID]=$(printf "%12d\n" "$wchar1")
             fi
-
-            #Seleção de processos a utilizar atraves de uma expressão regular
-            if [[ -v argOpt[c] && ! $comm =~ ${argOpt['c']} ]]; then
-                continue
-            fi
-
-            LANG=en_us_8859_1
-            startDate=$(ps -o lstart= -p $PID)                                            # data de início do processo atraves do PID
-            startDate=$(date +"%b %d %H:%M" -d "$startDate")                              # formatação da data conforme o guião
-            dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
-
-            start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
-            end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
-
-            if [[ -v argOpt[s] && "$dateSeg" -lt "$start" ]]; then #Para a opção -s
-                continue
-            fi
-
-            if [[ -v argOpt[e] && $dateSeg -gt $end ]]; then #Para a opção -e
-                continue
-            fi
-            #Inserir no array associativo as variáveis calculadas, onde o array tem como 'key' o PID
-            #arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$startDate")
-
         fi
 
     done
@@ -169,6 +146,7 @@ function listarProcessos() {
     for entry in /proc/[[:digit:]]*; do
 
         if [[ -r $entry/status && -r $entry/io ]]; then
+
             PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
             user=$(ps -o user= -p $PID)                           # ir buscar o user do PID
 
@@ -187,28 +165,33 @@ function listarProcessos() {
             fi
 
             LANG=en_us_8859_1
-            startDate=$(ps -o lstart= -p $PID)                                            # data de início do processo atraves do PID
-            startDate=$(date +"%b %d %H:%M" -d "$startDate") 
-
+            startDate=$(ps -o lstart= -p $PID) # data de início do processo atraves do PID
+            startDate=$(date +"%b %d %H:%M" -d "$startDate")
+            dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
 
             start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
             end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
-
 
             if [[ -v argOpt[s] && "$dateSeg" -lt "$start" ]]; then #Para a opção -s
                 continue
             fi
 
-            if [[ -v argOpt[e] && $dateSeg -gt $end ]]; then #Para a opção -e
+            if [[ -v argOpt[e] && "$dateSeg" -gt "$end" ]]; then #Para a opção -e
                 continue
             fi
-            
+
+            echo ----------------------- ${R1[$PID]}
+
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-$rchar1)/$1" | bc)           # calculo do rateR
-            rateW=$(echo "($wchar2-$wchar1)/$1" | bc)           # calculo do rateW
+            rateR=$(echo "($rchar2-${R1[$PID]})/$1" | bc)       # calculo do rateR
+            rateW=$(echo "($wchar2-${W1[$PID]})/$1" | bc)       # calculo do rateW
 
-            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+            if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then
+                continue
+            else
+                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
+            fi
         fi
     done
 

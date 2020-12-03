@@ -18,7 +18,8 @@ declare -A argOpt=()   # Array Associativo: está guardada a informação das op
 declare -A R1=()
 declare -A W1=()
 
-i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenacao
+i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenac
+re='^[0-9]+$'
 
 #Função para quando argumentos passados são inválidos
 function opcoes() {
@@ -59,7 +60,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
 
     case $option in
     c) #Seleção de processos a utilizar atraves de uma expressão regular
-        re='^[0-9]+$'
         str=${argOpt['c']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-c' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
@@ -67,7 +67,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         fi
         ;;
     s) #Seleção de processos a visualizar num periodo temporal - data mínima
-        re='^[0-9]+$'
         str=${argOpt['s']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
@@ -75,7 +74,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         fi
         ;;
     e) #Seleção de processos a visualizar num periodo temporal - data máxima
-        re='^[0-9]+$'
         str=${argOpt['e']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
@@ -83,7 +81,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         fi
         ;;
     u) #Seleção de processos a visualizar através do nome do utilizador
-        re='^[0-9]+$'
         str=${argOpt['u']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
@@ -91,7 +88,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         fi
         ;;
     p) #Número de processos a visualizar
-        re='^[0-9]+$'
         if ! [[ ${argOpt['p']} =~ $re ]]; then
             echo "Argumento de '-p' tem de ser um número ou chamou sem '-' atrás da opção passada." >&2
             exit 1

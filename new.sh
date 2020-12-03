@@ -12,12 +12,6 @@
 #
 #########################################################################################################################
 
-#
-# FAZER AS POSSIBILIDADES DAS OPÇOES COM ARGUMENTO :/
-# FAZER IF PRA VER SE TEM PERMISSAO PARA NAO USAR O SUDO
-# NA OPCAO COM -c E -p AQUELA MERDA AINDA N DA 100% BEM
-#
-
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=()   # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função

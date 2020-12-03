@@ -131,8 +131,8 @@ function listarProcessos() {
             sleep $1                                            # tempo em espera
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-$rchar1)/$1" | bc)           # calculo do rateR
-            rateW=$(echo "($wchar2-$wchar1)/$1" | bc)           # calculo do rateW
+            rateR=$(echo "($rchar2-$rchar1)/$1" | bc -l)           # calculo do rateR
+            rateW=$(echo "($wchar2-$wchar1)/$1" | bc -l)           # calculo do rateW
 
             #Inserir no array associativo as variáveis calculadas, onde o array tem como 'key' o PID
             arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")

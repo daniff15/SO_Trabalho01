@@ -216,5 +216,5 @@ function prints() {
     fi
 
 }
-
+ 
 listarProcessos ${@: -1} #este agumento passado, é para os segundos, visto que é passado em todas as opções, e é sempre o último

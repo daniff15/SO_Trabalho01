@@ -105,17 +105,16 @@ function listarProcessos() {
                 VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9') # ir buscar o VmSize
                 VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')   # ir buscar o VmRss
 
-                if [ -f $entry/status ]; then
-                    sec=$1                                              # guardar em sec os segundos passados nos argumentos
-                    rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial
-                    wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar inicial
-                    sleep $sec                                          # tempo em espera
-                    rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
-                    wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-                    rateR=$(echo "($rchar2-$rchar1)/$sec" | bc)         # calculo do rateR
-                    rateW=$(echo "($wchar2-$wchar1)/$sec" | bc)         # calculo do rateW
+                sec=$1                                              # guardar em sec os segundos passados nos argumentos
+                rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial
+                wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar inicial
+                sleep $sec                                          # tempo em espera
+                rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
+                wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
+                rateR=$(echo "($rchar2-$rchar1)/$sec" | bc)         # calculo do rateR
+                rateW=$(echo "($wchar2-$wchar1)/$sec" | bc)         # calculo do rateW
 
-                fi
+         
                 comm=$(cat $entry/comm | tr " " "_") # ir buscar o comm,e rerirar os espaços e substituir por '_' nos comm's com 2 nomes
 
                 #Seleção de processos a visualizar através do nome do utilizador

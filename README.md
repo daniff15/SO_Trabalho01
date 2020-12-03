@@ -29,7 +29,7 @@ Para executar o *script prochstat.sh* há estas opções disponíveis:
     -t          : Ordenação da tabela por RSS (decrescente)
     -w          : Ordenação da tabela pOR RATEW (decrescente)
     -p          : Número de processos a visualizar
-    Nota        : As opções -d,-m,-t,-w não podem ser utilizadas em simultâneo
+    *NOTA*      : As opções -d,-m,-t,-w não podem ser utilizadas em simultâneo
 
 Seguem-se alguns exemplos de execução:
 

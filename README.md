@@ -37,7 +37,7 @@ Seguem-se alguns exemplos de execução:
 ./procstat.sh -m -r 10
 ./procstat.sh -s "Nov 29 13:10" -e "Nov 19 16:30" 10
 ./procstat.sh -t -c "sys.*" 10
-./procstat.sh -w -r -u *nome_do_utilizador* -s "Nov 29 13:10" -e "Nov 19 16:30" 10 -p 5 10
+./procstat.sh -w -r -u *nome_do_utilizador* -s "Nov 29 13:10" -e "Nov 29 16:30" 10 -p 5 10
 ```
 
 ### Relatório

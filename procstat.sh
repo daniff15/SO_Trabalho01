@@ -128,8 +128,6 @@ function listarProcessos() {
                     continue
                 fi
 
-                startDate=$(ps -o lstart= -p $PID)               # data de início do processo atraves do PID
-                startDate=$(date +"%b %d %H:%M" -d "$startDate")  # formatação da data conforme o guião
                 dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data do processo em segundos
 
                 #Seleção de processos a visualizar num periodo temporal
@@ -147,7 +145,7 @@ function listarProcessos() {
                     fi
                 fi
 
-                #Ordenação default da tabela, ordem alfabética dos processos
+                #Inserir no Array Associativo as variáveis calculadas, com a chave o PID
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
 
             fi

@@ -22,38 +22,73 @@ i=0 #iniciação da variável i, usada na condição de verificação de opçoes
 function opcoes() {
     echo "************************************************************************************************"
     echo "OPÇÃO INVÁLIDA!"
-    echo "    -c        : Seleção de processos a utilizar através de uma expressão regular"
-    echo "    -u        : Seleção de processos a visualizar através do nome do utilizador"
-    echo "    -r        : Ordenação reversa"
-    echo "    -s        : Seleção de processos a visualizar num periodo temporal - data mínima"
-    echo "    -e        : Seleção de processos a visualizar num periodo temporal - data máxima"
-    echo "    -d        : Ordenação da tabela por RATER (decrescente)"
-    echo "    -m        : Ordenação da tabela por MEM (decrescente)"
-    echo "    -t        : Ordenação da tabela por RSS (decrescente)"
-    echo "    -w        : Ordenação da tabela pOR RATEW (decrescente)"
-    echo "    -p        : Número de processos a visualizar"
-    echo "   Nota       : As opções -d,-m,-t,-w não podem ser utilizadas em simultâneo"
+    echo "    -c          : Seleção de processos a utilizar através de uma expressão regular"
+    echo "    -u          : Seleção de processos a visualizar através do nome do utilizador"
+    echo "    -r          : Ordenação reversa"
+    echo "    -s          : Seleção de processos a visualizar num periodo temporal - data mínima"
+    echo "    -e          : Seleção de processos a visualizar num periodo temporal - data máxima"
+    echo "    -d          : Ordenação da tabela por RATER (decrescente)"
+    echo "    -m          : Ordenação da tabela por MEM (decrescente)"
+    echo "    -t          : Ordenação da tabela por RSS (decrescente)"
+    echo "    -w          : Ordenação da tabela pOR RATEW (decrescente)"
+    echo "    -p          : Número de processos a visualizar"
+    echo "   Nota         : As opções -d,-m,-t,-w não podem ser utilizadas em simultâneo"
+    echo "Último argumento: O último argumento passado tem de ser um número"
     echo "************************************************************************************************"
 }
 
 #Tratamentos das opçoes passadas como argumentos
 while getopts "c:u:rs:e:dmtwp:" option; do
+    # Verificação se o último argumento passado é um numero
+    re='^[0-9]+([.][0-9]+)?$'
+    if ! [[ ${@: -1} =~ $re  ]]; then
+        opcoes
+        exit
+    fi
+
+        #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
+    if [[ -z "$OPTARG" ]]; then
+        argOpt[$option]="nada"
+    else
+        argOpt[$option]=${OPTARG}
+    fi
+
+    echo ${!argOpt[@]}
 
     case $option in
     c) #Seleção de processos a utilizar atraves de uma expressão regular
-
+        re='^[0-9]+$'
+        str=${argOpt['c']}
+        if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
+            echo "Argumento de '-c' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+        fi
         ;;
     s) #Seleção de processos a visualizar num periodo temporal - data mínima
-
+        re='^[0-9]+$'
+        str=${argOpt['s']}
+        if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
+            echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+        fi
         ;;
     e) #Seleção de processos a visualizar num periodo temporal - data máxima
-
+        re='^[0-9]+$'
+        str=${argOpt['e']}
+        if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
+            echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+        fi
         ;;
     u) #Seleção de processos a visualizar através do nome do utilizador
-
+        re='^[0-9]+$'
+        str=${argOpt['u']}
+        if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
+            echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; opcoes exit 1
+        fi
         ;;
     p) #Número de processos a visualizar
-
+        re='^[0-9]+$'
+        if ! [[ ${argOpt['p']} =~ $re ]] ; then
+            echo "Argumento de '-p' tem de ser um número ou chamou sem '-' atrás da opção passada." >&2; exit 1
+        fi
         ;;
     r) #Ordenação reversa
 
@@ -76,12 +111,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     ;;
     esac
 
-    #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
-    if [[ -z "$OPTARG" ]]; then
-        argOpt[$option]="nada"
-    else
-        argOpt[$option]=${OPTARG}
-    fi
+
 done
 
 #Tratamento dos dados lidos
@@ -131,8 +161,8 @@ function listarProcessos() {
             sleep $1                                            # tempo em espera
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-$rchar1)/$1" | bc)           # calculo do rateR
-            rateW=$(echo "($wchar2-$wchar1)/$1" | bc)           # calculo do rateW
+            rateR=$(echo "($rchar2-$rchar1)/$1" | bc )           # calculo do rateR
+            rateW=$(echo "($wchar2-$wchar1)/$1" | bc )           # calculo do rateW
 
             #Inserir no array associativo as variáveis calculadas, onde o array tem como 'key' o PID
             arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
@@ -146,19 +176,19 @@ function listarProcessos() {
 
 function prints() {
 
-    if [[ -v argOpt[r] ]]; then
-        ordem="-n"
-    else
+    if ! [[ -v argOpt[r] ]]; then
         ordem="-rn"
+    else
+        ordem="-n"
     fi
 
-    #Nº processos que queremos ver
-    if [[ -v argOpt[p] ]]; then
-        p=${argOpt['p']}
     #Se não dermos nenhum valor ao -p, fica com o valor do tamanho do array
     #Ou seja printa todos
-    else
+    if ! [[ -v argOpt[p] ]]; then
         p=${#arrayAss[@]}
+    #Nº de processos que queremos ver    
+    else
+        p=${argOpt['p']}
     fi
 
     if [[ -v argOpt[m] ]]; then

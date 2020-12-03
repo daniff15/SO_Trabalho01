@@ -16,7 +16,7 @@
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=()   # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
 
-i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenacao
+i=0                    #iniciação da variável i, usada na condição de verificação de opçoes de ordenacao
 
 #Função para quando argumentos passados são inválidos
 function opcoes() {
@@ -111,9 +111,9 @@ function listarProcessos() {
             fi
 
             LANG=en_us_8859_1
-            startDate=$(ps -o lstart= -p $PID)                                            # data de início do processo atraves do PID
-            startDate=$(date +"%b %d %H:%M" -d "$startDate")                              # formatação da data conforme o guião
-            dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
+            startDate=$(ps -o lstart= -p $PID)                                              # data de início do processo atraves do PID
+            startDate=$(date +"%b %d %H:%M" -d "$startDate")                                # formatação da data conforme o guião
+            dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data do processo em segundos
 
             start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
             end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima

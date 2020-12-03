@@ -15,8 +15,8 @@
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=()   # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
-declare -A R1=()
-declare -A W1=()
+declare -A R1=()       # Array Associativo: está guardada a informação do rchar1
+declare -A W1=()       # Array Associativo: está guardada a informação do wchar1
 
 i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenac
 re='^[0-9]+$'

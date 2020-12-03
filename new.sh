@@ -41,76 +41,80 @@ function opcoes() {
 while getopts "c:u:rs:e:dmtwp:" option; do
     # Verificação se o último argumento passado é um numero
     re='^[0-9]+([.][0-9]+)?$'
-    if ! [[ ${@: -1} =~ $re  ]]; then
+    if ! [[ ${@: -1} =~ $re ]]; then
         opcoes
         exit
     fi
 
-        #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
+    #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
     if [[ -z "$OPTARG" ]]; then
         argOpt[$option]="nada"
     else
         argOpt[$option]=${OPTARG}
     fi
 
-    echo ${!argOpt[@]}
+    #echo ${!argOpt[@]}
 
     case $option in
     c) #Seleção de processos a utilizar atraves de uma expressão regular
         re='^[0-9]+$'
         str=${argOpt['c']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
-            echo "Argumento de '-c' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+            echo "Argumento de '-c' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            exit 1
         fi
         ;;
     s) #Seleção de processos a visualizar num periodo temporal - data mínima
         re='^[0-9]+$'
         str=${argOpt['s']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
-            echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+            echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            exit 1
         fi
         ;;
     e) #Seleção de processos a visualizar num periodo temporal - data máxima
         re='^[0-9]+$'
         str=${argOpt['e']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
-            echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; exit 1
+            echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            exit 1
         fi
         ;;
     u) #Seleção de processos a visualizar através do nome do utilizador
         re='^[0-9]+$'
         str=${argOpt['u']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
-            echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2; opcoes exit 1
+            echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            opcoes exit 1
         fi
         ;;
     p) #Número de processos a visualizar
         re='^[0-9]+$'
-        if ! [[ ${argOpt['p']} =~ $re ]] ; then
-            echo "Argumento de '-p' tem de ser um número ou chamou sem '-' atrás da opção passada." >&2; exit 1
+        if ! [[ ${argOpt['p']} =~ $re ]]; then
+            echo "Argumento de '-p' tem de ser um número ou chamou sem '-' atrás da opção passada." >&2
+            exit 1
         fi
         ;;
     r) #Ordenação reversa
 
         ;;
-    m | t | d | w) 
-    
-    if [[ $i = 1 ]]; then 
-        #Quando há mais que 1 argumento de ordenacao
-        opcoes
-        exit
-    else
-        #Se algum argumento for de ordenacao i=1
-        i=1
-    fi
+    m | t | d | w)
+
+        if [[ $i = 1 ]]; then
+            #Quando há mais que 1 argumento de ordenacao
+            opcoes
+            exit
+        else
+            #Se algum argumento for de ordenacao i=1
+            i=1
+        fi
         ;;
 
     *) #Passagem de argumentos inválidos
-    opcoes
-    exit
-    ;;
+        opcoes
+        exit
+        ;;
     esac
-
 
 done
 
@@ -120,15 +124,13 @@ function listarProcessos() {
     #Cabeçalho
     printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/[[:digit:]]*; do
-        if [[ -r $entry/status && -r $entry/io ]]; then    
-            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9')    # ir buscar o PID
-            user=$(ps -o user= -p $PID)                              # ir buscar o user do PID
-        
-            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9') # ir buscar o VmSize
-            VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')   # ir buscar o VmRss
+        if [[ -r $entry/status && -r $entry/io ]]; then
+            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
             
-            comm=$(cat $entry/comm | tr " " "_")                     # ir buscar o comm,e retirar os espaços e substituir por '_' nos comm's com 2 nomes
+            rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial
+            wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar inicial
 
+            comm=$(cat $entry/comm | tr " " "_") # ir buscar o comm,e retirar os espaços e substituir por '_' nos comm's com 2 nomes
 
             #Seleção de processos a visualizar através do nome do utilizador
             if [[ -v argOpt[u] && ! ${argOpt['u']} == $user ]]; then
@@ -155,20 +157,59 @@ function listarProcessos() {
             if [[ -v argOpt[e] && $dateSeg -gt $end ]]; then #Para a opção -e
                 continue
             fi
-
-            rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar inicial
-            wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar inicial
-            sleep $1                                            # tempo em espera
-            rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
-            wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-$rchar1)/$1" | bc )           # calculo do rateR
-            rateW=$(echo "($wchar2-$wchar1)/$1" | bc )           # calculo do rateW
-
             #Inserir no array associativo as variáveis calculadas, onde o array tem como 'key' o PID
-            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+            #arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$startDate")
 
         fi
 
+    done
+
+    sleep $1 # tempo em espera
+
+    for entry in /proc/[[:digit:]]*; do
+
+        if [[ -r $entry/status && -r $entry/io ]]; then
+            PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
+            user=$(ps -o user= -p $PID)                           # ir buscar o user do PID
+
+            VmSize=$(cat $entry/status | grep VmSize | tr -dc '0-9') # ir buscar o VmSize
+            VmRss=$(cat $entry/status | grep VmRSS | tr -dc '0-9')   # ir buscar o VmRss
+
+            comm=$(cat $entry/comm | tr " " "_") # ir buscar o comm,e retirar os espaços e substituir por '_' nos comm's com 2 nomes
+
+            if [[ -v argOpt[u] && ! ${argOpt['u']} == $user ]]; then
+                continue
+            fi
+
+            #Seleção de processos a utilizar atraves de uma expressão regular
+            if [[ -v argOpt[c] && ! $comm =~ ${argOpt['c']} ]]; then
+                continue
+            fi
+
+            LANG=en_us_8859_1
+            startDate=$(ps -o lstart= -p $PID)                                            # data de início do processo atraves do PID
+            startDate=$(date +"%b %d %H:%M" -d "$startDate") 
+
+
+            start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
+            end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+
+
+            if [[ -v argOpt[s] && "$dateSeg" -lt "$start" ]]; then #Para a opção -s
+                continue
+            fi
+
+            if [[ -v argOpt[e] && $dateSeg -gt $end ]]; then #Para a opção -e
+                continue
+            fi
+            
+            rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
+            wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
+            rateR=$(echo "($rchar2-$rchar1)/$1" | bc)           # calculo do rateR
+            rateW=$(echo "($wchar2-$wchar1)/$1" | bc)           # calculo do rateW
+
+            arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
+        fi
     done
 
     prints
@@ -186,7 +227,7 @@ function prints() {
     #Ou seja printa todos
     if ! [[ -v argOpt[p] ]]; then
         p=${#arrayAss[@]}
-    #Nº de processos que queremos ver    
+    #Nº de processos que queremos ver
     else
         p=${argOpt['p']}
     fi
@@ -216,5 +257,5 @@ function prints() {
     fi
 
 }
- 
+
 listarProcessos ${@: -1} #este agumento passado, é para os segundos, visto que é passado em todas as opções, e é sempre o último

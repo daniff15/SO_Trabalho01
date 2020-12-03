@@ -96,7 +96,7 @@ function listarProcessos() {
     printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/[[:digit:]]*; do
         if [[ -r $entry/status && -r $entry/io ]]; then 
-            if [[ -f $entry/comm ]]; then
+
                 PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
                 user=$(ps -o user= -p $PID)                           # ir buscar o user do PID
                 startDate=$(ps -o lstart= -p $PID)                    # data de início do processo atraves do PID
@@ -147,7 +147,6 @@ function listarProcessos() {
                 #Inserir no Array Associativo as variáveis calculadas, com a chave o PID
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.1f %12.1f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "$rchar1" "$wchar1" "$rateR" "$rateW" "$startDate")
 
-            fi
         fi
     
     done

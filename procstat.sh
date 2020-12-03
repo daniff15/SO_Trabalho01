@@ -84,7 +84,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['u']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
-            opcoes exit 1
+            exit 1
         fi
         ;;
     p) #Número de processos a visualizar
@@ -100,6 +100,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
 
         if [[ $i = 1 ]]; then
             #Quando há mais que 1 argumento de ordenacao
+            opcoes
             exit
         else
             #Se algum argumento for de ordenacao i=1

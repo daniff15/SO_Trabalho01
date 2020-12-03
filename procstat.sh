@@ -100,7 +100,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
 
         if [[ $i = 1 ]]; then
             #Quando há mais que 1 argumento de ordenacao
-            opcoes
             exit
         else
             #Se algum argumento for de ordenacao i=1

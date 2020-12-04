@@ -19,7 +19,7 @@ declare -A R1=()       # Array Associativo: está guardada a informação do rch
 declare -A W1=()       # Array Associativo: está guardada a informação do wchar1
 
 i=0                    # Inicialização da variável i, usada na condição de verificação de opçoes de ordenac
-re='^[0-9]+$'          # Expressão regex   
+re='^[0-9]+([.][0-9]+)?$' # Expressão regex   
 
 #Função para quando argumentos passados são inválidos
 function opcoes() {

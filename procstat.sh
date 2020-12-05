@@ -200,15 +200,6 @@ function prints() {
         ordem="-n"
     fi
 
-    #Se não dermos nenhum valor ao -p, fica com o valor do tamanho do array
-    #Ou seja printa todos
-    if ! [[ -v argOpt[p] ]]; then
-        p=${#arrayAss[@]}
-    #Nº de processos que queremos ver
-    else
-        p=${argOpt['p']}
-    fi
-
     if [[ -v argOpt[m] ]]; then
         #Ordenação da tabela pelo MEM
         printf '%s \n' "${arrayAss[@]}" | sort $ordem -k4 | head -n $p

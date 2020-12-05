@@ -126,7 +126,7 @@ function listarProcessos() {
             rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')   # rchar inicial
             wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9')   # wchar inicial
 
-            if [[ $rchar1 == 0 && $wchar == 0 ]]; then
+            if [[ $rchar1 == 0 && $wchar == 0 ]]; then            # não conseguir captar informação
                 continue
             else
                 R1[$PID]=$(printf "%12d\n" "$rchar1")
@@ -181,7 +181,7 @@ function listarProcessos() {
             rateR=$(echo "($rchar2-${R1[$PID]})/$1" | bc)       # calculo do rateR
             rateW=$(echo "($wchar2-${W1[$PID]})/$1" | bc)       # calculo do rateW
 
-            if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then
+            if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then         # não conseguir captar informação
                 continue
             else
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")

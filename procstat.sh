@@ -199,6 +199,15 @@ function prints() {
     else
         ordem="-n"
     fi
+    
+    #Nº processos que queremos ver
+    if [[ -v argOpt[p] ]]; then
+        p=${argOpt['p']}
+    #Se não dermos nenhum valor ao -p, fica com o valor do tamanho do array
+    #Ou seja printa todos
+    else
+        p=${#arrayAss[@]}
+    fi
 
     if [[ -v argOpt[m] ]]; then
         #Ordenação da tabela pelo MEM

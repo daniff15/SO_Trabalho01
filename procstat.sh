@@ -43,7 +43,6 @@ function opcoes() {
 #Tratamentos das opçoes passadas como argumentos
 while getopts "c:u:rs:e:dmtwp:" option; do
     # Verificação se o último argumento passado é um numero
-    re='^[0-9]+([.][0-9]+)?$'
     if ! [[ ${@: -1} =~ $re ]]; then
         opcoes
         exit

@@ -18,6 +18,7 @@ declare -A argOpt=()   # Array Associativo: está guardada a informação das op
 declare -A R1=()
 declare -A W1=()
 
+
 i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenac
 re='^[0-9]+$'
 

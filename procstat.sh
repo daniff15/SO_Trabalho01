@@ -18,9 +18,8 @@ declare -A argOpt=()   # Array Associativo: está guardada a informação das op
 declare -A R1=()
 declare -A W1=()
 
-
 i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenac
-re='^[0-9]+$'
+re='^[0-9]+([.][0-9]+)?$'
 
 #Função para quando argumentos passados são inválidos
 function opcoes() {
@@ -43,12 +42,6 @@ function opcoes() {
 
 #Tratamentos das opçoes passadas como argumentos
 while getopts "c:u:rs:e:dmtwp:" option; do
-    # Verificação se o último argumento passado é um numero
-    re='^[0-9]+([.][0-9]+)?$'
-    if ! [[ ${@: -1} =~ $re ]]; then
-        opcoes
-        exit
-    fi
 
     #Adicionar ao array argOpt as opcoes passadas ao correr o procstat.sh, caso existam adiciona as que são passadas, caso não, adiciona "nada"
     if [[ -z "$OPTARG" ]]; then
@@ -129,6 +122,15 @@ if [[ $# == 0 ]]; then
     opcoes
     exit 1
 fi
+
+# Verificação se o último argumento passado é um numero
+
+if ! [[ ${@: -1} =~ $re ]]; then
+    echo "Último argumento tem de ser um número."
+    opcoes
+    exit 1
+fi
+
 #Tratamento dos dados lidos
 function listarProcessos() {
 
@@ -178,29 +180,28 @@ function listarProcessos() {
             startDate=$(date +"%b %d %H:%M" -d "$startDate")
             dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
 
-            if [[ -v argOpt[s] ]]; then #Para a opção -s
+            if [[ -v argOpt[s] ]]; then                                                         #Para a opção -s
                 start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
 
-                if [[ "$dateSeg" -lt "$start"  ]]; then
+                if [[ "$dateSeg" -lt "$start" ]]; then
                     continue
                 fi
             fi
 
-            if [[ -v argOpt[e] ]]; then #Para a opção -e
-                end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+            if [[ -v argOpt[e] ]]; then                                                       #Para a opção -e
+                end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data máxima
 
                 if [[ "$dateSeg" -gt "$end" ]]; then
                     continue
                 fi
             fi
 
-
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
             subr=$rchar2-${R1[$PID]}
             subw=$wchar2-${W1[$PID]}
-            rateR=$(echo "scale=2; $subr/$1" | bc -l)       # calculo do rateR
-            rateW=$(echo "scale=2; $subw/$1" | bc -l)       # calculo do rateW
+            rateR=$(echo "scale=2; $subr/$1" | bc -l) # calculo do rateR
+            rateW=$(echo "scale=2; $subw/$1" | bc -l) # calculo do rateW
 
             arrayAss[$PID]=$(printf "%-27s %-16s %15d %12d %12d %12d %12d %15s %15s %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
         fi

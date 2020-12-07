@@ -185,14 +185,25 @@ function listarProcessos() {
 
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-${R1[$PID]})/$1" | bc)       # calculo do rateR
-            rateW=$(echo "($wchar2-${W1[$PID]})/$1" | bc)       # calculo do rateW
+            subr=$rchar2-${R1[$PID]}
+            subw=$wchar2-${W1[$PID]}
+            rateR=$(echo $subr/$1 | bc -l)       # calculo do rateR
+            rateW=$(echo $subw/$1 | bc -l)       # calculo do rateW
+
 
             if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then
                 continue
-            #else if [[ $rateR == 0 ]]; then
-            #    arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
-            #else
+            elif [[ $rateR == 0 && $rateW != 0 ]]; then
+                rateR=0
+                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
+            elif [[ $rateW == 0 && $rateR != 0 ]]; then
+                rateW=0
+                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
+            elif [[ $rateR == 0 && $rateW == 0 ]]; then
+                rateR=0
+                rateW=0
+                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate") 
+            else
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
             fi
         fi

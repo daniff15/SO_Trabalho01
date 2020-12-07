@@ -15,11 +15,12 @@
 #Arrays
 declare -A arrayAss=() # Array Associativo: está guardado a informação de cada processo, sendo a 'key' o PID
 declare -A argOpt=()   # Array Associativo: está guardada a informação das opções passadas como argumentos na chamada da função
-declare -A R1=()       # Array Associativo: está guardada a informação do rchar1
-declare -A W1=()       # Array Associativo: está guardada a informação do wchar1
+declare -A R1=()
+declare -A W1=()
 
-i=0                    # Inicialização da variável i, usada na condição de verificação de opçoes de ordenac
-re='^[0-9]+([.][0-9]+)?$' # Expressão regex   
+
+i=0 #iniciação da variável i, usada na condição de verificação de opçoes de ordenac
+re='^[0-9]+$'
 
 #Função para quando argumentos passados são inválidos
 function opcoes() {
@@ -43,6 +44,7 @@ function opcoes() {
 #Tratamentos das opçoes passadas como argumentos
 while getopts "c:u:rs:e:dmtwp:" option; do
     # Verificação se o último argumento passado é um numero
+    re='^[0-9]+([.][0-9]+)?$'
     if ! [[ ${@: -1} =~ $re ]]; then
         opcoes
         exit
@@ -83,7 +85,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['u']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
-            exit 1
+            opcoes exit 1
         fi
         ;;
     p) #Número de processos a visualizar
@@ -119,14 +121,14 @@ done
 function listarProcessos() {
 
     #Cabeçalho
-    printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
+    printf "%-27s %-16s %15s %12s %12s %12s %12s %15s %15s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/[[:digit:]]*; do
         if [[ -r $entry/status && -r $entry/io ]]; then
             PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
             rchar1=$(cat $entry/io | grep rchar | tr -dc '0-9')   # rchar inicial
             wchar1=$(cat $entry/io | grep wchar | tr -dc '0-9')   # wchar inicial
 
-            if [[ $rchar1 == 0 && $wchar == 0 ]]; then            # não conseguir captar informação
+            if [[ $rchar1 == 0 && $wchar == 0 ]]; then
                 continue
             else
                 R1[$PID]=$(printf "%12d\n" "$rchar1")
@@ -164,28 +166,33 @@ function listarProcessos() {
             startDate=$(date +"%b %d %H:%M" -d "$startDate")
             dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
 
-            start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
-            end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+            if [[ -v argOpt[s] ]]; then #Para a opção -s
+                start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
 
-            if [[ -v argOpt[s] && "$dateSeg" -lt "$start" ]]; then #Para a opção -s
-                continue
+                if [[ "$dateSeg" -lt "$start"  ]]; then
+                    continue
+                fi
             fi
 
-            if [[ -v argOpt[e] && "$dateSeg" -gt "$end" ]]; then #Para a opção -e
-                continue
+            if [[ -v argOpt[e] ]]; then #Para a opção -e
+                end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+
+                if [[ "$dateSeg" -gt "$end" ]]; then
+                    continue
+                fi
             fi
 
 
             rchar2=$(cat $entry/io | grep rchar | tr -dc '0-9') # rchar apos s segundos
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
-            rateR=$(echo "($rchar2-${R1[$PID]})/$1" | bc)       # calculo do rateR
-            rateW=$(echo "($wchar2-${W1[$PID]})/$1" | bc)       # calculo do rateW
+            subr=$rchar2-${R1[$PID]}
+            subw=$wchar2-${W1[$PID]}
+            rateR=$(echo "scale=2; $subr/$1" | bc -l)       # calculo do rateR
+            #rateR=${rateR/#./0.}
+            rateW=$(echo "scale=2; $subw/$1" | bc -l)       # calculo do rateW
+            #rateW=${rateW/#./0.}
 
-            if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then         # não conseguir captar informação
-                continue
-            else
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
-            fi
+            arrayAss[$PID]=$(printf "%-27s %-16s %15d %12d %12d %12d %12d %15s %15s %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
         fi
     done
 
@@ -199,14 +206,14 @@ function prints() {
     else
         ordem="-n"
     fi
-    
-    #Nº processos que queremos ver
-    if [[ -v argOpt[p] ]]; then
-        p=${argOpt['p']}
+
     #Se não dermos nenhum valor ao -p, fica com o valor do tamanho do array
     #Ou seja printa todos
-    else
+    if ! [[ -v argOpt[p] ]]; then
         p=${#arrayAss[@]}
+    #Nº de processos que queremos ver
+    else
+        p=${argOpt['p']}
     fi
 
     if [[ -v argOpt[m] ]]; then

@@ -121,7 +121,7 @@ done
 function listarProcessos() {
 
     #Cabeçalho
-    printf "%-30s %-16s %15s %12s %12s %12s %12s %12s %12s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
+    printf "%-27s %-16s %15s %12s %12s %12s %12s %15s %15s %16s\n" "COMM" "USER" "PID" "MEM" "RSS" "READB" "WRITEB" "RATER" "RATEW" "DATE"
     for entry in /proc/[[:digit:]]*; do
         if [[ -r $entry/status && -r $entry/io ]]; then
             PID=$(cat $entry/status | grep -w Pid | tr -dc '0-9') # ir buscar o PID
@@ -187,25 +187,12 @@ function listarProcessos() {
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
             subr=$rchar2-${R1[$PID]}
             subw=$wchar2-${W1[$PID]}
-            rateR=$(echo $subr/$1 | bc )       # calculo do rateR
-            rateW=$(echo $subw/$1 | bc )       # calculo do rateW
+            rateR=$(echo "scale=2; $subr/$1" | bc -l)       # calculo do rateR
+            #rateR=${rateR/#./0.}
+            rateW=$(echo "scale=2; $subw/$1" | bc -l)       # calculo do rateW
+            #rateW=${rateW/#./0.}
 
-
-            if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then
-                continue
-            elif [[ $rateR == 0 && $rateW != 0 ]]; then
-                rateR=0
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
-            elif [[ $rateW == 0 && $rateR != 0 ]]; then
-                rateW=0
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
-            elif [[ $rateR == 0 && $rateW == 0 ]]; then
-                rateR=0
-                rateW=0
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate") 
-            else
-                arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
-            fi
+            arrayAss[$PID]=$(printf "%-27s %-16s %15d %12d %12d %12d %12d %15s %15s %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
         fi
     done
 

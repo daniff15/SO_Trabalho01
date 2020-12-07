@@ -50,8 +50,6 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         argOpt[$option]=${OPTARG}
     fi
 
-    #echo ${!argOpt[@]}
-
     case $option in
     c) #Seleção de processos a utilizar atraves de uma expressão regular
         str=${argOpt['c']}

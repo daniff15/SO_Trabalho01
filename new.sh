@@ -165,15 +165,20 @@ function listarProcessos() {
             startDate=$(date +"%b %d %H:%M" -d "$startDate")
             dateSeg=$(date -d "$startDate" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data do processo em segundos
 
-            start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
-            end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+            if [[ -v argOpt[s] ]]; then #Para a opção -s
+                start=$(date -d "${argOpt['s']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}') # data mínima
 
-            if [[ -v argOpt[s] && "$dateSeg" -lt "$start" ]]; then #Para a opção -s
-                continue
+                if [[ "$dateSeg" -lt "$start"  ]]; then
+                    continue
+                fi
             fi
 
-            if [[ -v argOpt[e] && "$dateSeg" -gt "$end" ]]; then #Para a opção -e
-                continue
+            if [[ -v argOpt[e] ]]; then #Para a opção -e
+                end=$(date -d "${argOpt['e']}" +"%b %d %H:%M"+%s | awk -F '[+]' '{print $2}')   # data máxima
+
+                if [[ "$dateSeg" -gt "$end" ]]; then
+                    continue
+                fi
             fi
 
 
@@ -184,7 +189,9 @@ function listarProcessos() {
 
             if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then
                 continue
-            else
+            #else if [[ $rateR == 0 ]]; then
+            #    arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12d %12d %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
+            #else
                 arrayAss[$PID]=$(printf "%-30s %-16s %15d %12d %12d %12d %12d %12.2f %12.2f %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
             fi
         fi

@@ -188,9 +188,7 @@ function listarProcessos() {
             subr=$rchar2-${R1[$PID]}
             subw=$wchar2-${W1[$PID]}
             rateR=$(echo "scale=2; $subr/$1" | bc -l)       # calculo do rateR
-            #rateR=${rateR/#./0.}
             rateW=$(echo "scale=2; $subw/$1" | bc -l)       # calculo do rateW
-            #rateW=${rateW/#./0.}
 
             arrayAss[$PID]=$(printf "%-27s %-16s %15d %12d %12d %12d %12d %15s %15s %16s\n" "$comm" "$user" "$PID" "$VmSize" "$VmRss" "${R1[$PID]}" "${W1[$PID]}" "$rateR" "$rateW" "$startDate")
         fi

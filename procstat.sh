@@ -109,7 +109,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         if [[ $i = 1 ]]; then
             #Quando há mais que 1 argumento de ordenacao
             opcoes
-            exit
+            exit 1
         else
             #Se algum argumento for de ordenacao i=1
             i=1
@@ -118,14 +118,17 @@ while getopts "c:u:rs:e:dmtwp:" option; do
 
     *) #Passagem de argumentos inválidos
         opcoes
-        exit
+        exit 1
         ;;
     esac
 
 done
 
-echo ${argOpt[@]}
-
+if [[ $# == 0 ]]; then
+    echo "Tem de passar no mínimo um argumento (segundos)."
+    opcoes
+    exit 1
+fi
 #Tratamento dos dados lidos
 function listarProcessos() {
 

@@ -70,7 +70,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         ;;
     s) #Seleção de processos a visualizar num periodo temporal - data mínima
         str=${argOpt['s']}
-        regData='^((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)) +[0-9]{1,2} +[0-9]{1,2}:[0-9]{1,2}'
+        regData='^((Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)) +[0-9]{1,2} +[0-9]{1,2}:[0-9]{1,2}'
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re || ! "$str" =~ $regData ]]; then
             echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
             opcoes
@@ -79,7 +79,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         ;;
     e) #Seleção de processos a visualizar num periodo temporal - data máxima
         str=${argOpt['e']}
-        regData='^((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)) +[0-9]{1,2} +[0-9]{1,2}:[0-9]{1,2}'
+        regData='^((Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)) +[0-9]{1,2} +[0-9]{1,2}:[0-9]{1,2}'
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re || ! "$str" =~ $regData ]]; then
             echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
             opcoes
@@ -123,6 +123,8 @@ while getopts "c:u:rs:e:dmtwp:" option; do
     esac
 
 done
+
+echo ${argOpt[@]}
 
 #Tratamento dos dados lidos
 function listarProcessos() {

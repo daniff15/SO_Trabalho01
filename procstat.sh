@@ -64,6 +64,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['c']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-c' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            opcoes
             exit 1
         fi
         ;;
@@ -71,6 +72,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['s']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-s' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            opcoes
             exit 1
         fi
         ;;
@@ -78,6 +80,7 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['e']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-e' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            opcoes
             exit 1
         fi
         ;;
@@ -85,12 +88,14 @@ while getopts "c:u:rs:e:dmtwp:" option; do
         str=${argOpt['u']}
         if [[ $str == 'nada' || ${str:0:1} == "-" || $str =~ $re ]]; then
             echo "Argumento de '-u' não foi preenchido, foi introduzido argumento inválido ou chamou sem '-' atrás da opção passada." >&2
+            opcoes
             opcoes exit 1
         fi
         ;;
     p) #Número de processos a visualizar
         if ! [[ ${argOpt['p']} =~ $re ]]; then
             echo "Argumento de '-p' tem de ser um número ou chamou sem '-' atrás da opção passada." >&2
+            opcoes
             exit 1
         fi
         ;;

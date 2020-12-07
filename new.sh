@@ -187,8 +187,8 @@ function listarProcessos() {
             wchar2=$(cat $entry/io | grep wchar | tr -dc '0-9') # wchar apos s segundos
             subr=$rchar2-${R1[$PID]}
             subw=$wchar2-${W1[$PID]}
-            rateR=$(echo $subr/$1 | bc -l)       # calculo do rateR
-            rateW=$(echo $subw/$1 | bc -l)       # calculo do rateW
+            rateR=$(echo $subr/$1 | bc )       # calculo do rateR
+            rateW=$(echo $subw/$1 | bc )       # calculo do rateW
 
 
             if [[ $rchar2 == 0 && $wchar2 == 0 ]]; then

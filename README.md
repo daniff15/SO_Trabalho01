@@ -44,4 +44,4 @@ Este projeto está acompanhado por um [Relatório](/Relatório), onde todas as i
 ## Autores
 
  - **[Pedro Sobral](https://github.com/TheScorpoi) - 98491**
- - **[Daniel Figueiredo](https://github.com/daniff15) - 98491**
+ - **[Daniel Figueiredo](https://github.com/daniff15) - 98498**
